@@ -1,15 +1,33 @@
 import Layout from '../components/Layout'
-import PostLink from '../components/PostLink'
+import fetch from 'isomorphic-unfetch'
+import Link from 'next/link'
 
-const Index = () => (
-  <Layout>
-    <p>List of posts</p>
-    <ul>
-      <PostLink id="1" title="Post 1"></PostLink>
-      <PostLink id="2" title="Post 2"></PostLink>
-      <PostLink id="3" title="Post 3"></PostLink>
-    </ul>
-  </Layout>
-)
+const Index = (props) => {
+  return (
+    <Layout>
+      {props.shows.map(({ score, show }) => {
+        return (
+          <div key={show.id}>
+            <span>{Number(score).toFixed(1)} - </span>
+            <Link as={`/show/${show.id}`} href={`/showDetail?id=${show.id}`}>
+              <a>
+                {show.name}
+              </a>
+            </Link>
+          </div>
+        );
+      })}
+      <p>List of posts</p>
+    </Layout>
+  )
+}
+
+Index.getInitialProps = async function () {
+  const res = await fetch('https://api.tvmaze.com/search/shows?q=batman');
+  const data = await res.json();
+  return {
+    shows: data
+  };
+};
 
 export default Index
